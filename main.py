@@ -66,6 +66,8 @@ if __name__ == '__main__':
             print('Loaded QTable and States from Files')
             qt = p / args.folder / '{0}_qtable.npy'.format(args.map)
             states = p / args.folder / '{0}_states.npy'.format(args.map)
+        else:
+            print('Started with fresh QTable')
 
         # Todo: Make Switch depending on Map
         agent = Agents.MoveToBeacon(qt, states)
