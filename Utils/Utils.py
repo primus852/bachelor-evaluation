@@ -1,6 +1,5 @@
 import math
 
-
 class Helper:
     @staticmethod
     def get_eps_threshold(e_start, e_end, e_decay, steps_done):
@@ -18,7 +17,7 @@ class Stack:
         self.items.append(item)
 
     def pop(self):
-        return self.items.pop()
+        return self.items.pop(0)
 
     def peek(self):
         return self.items[len(self.items) - 1]
