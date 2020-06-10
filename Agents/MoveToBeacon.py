@@ -22,13 +22,12 @@ _AI_NEUTRAL = 3
 _AI_HOSTILE = 4
 _SELECT_ALL = [0]
 _NOT_QUEUED = [0]
-_QUEUED = [1]
 
 action_space = [
     _NO_OP,
     _SELECT_ARMY,
     _SELECT_POINT,
-    # _MOVE_SCREEN,
+    _MOVE_SCREEN,
     _MOVE_RAND,
     _MOVE_MIDDLE
 ]
@@ -49,12 +48,15 @@ class MoveToBeacon(base_agent.BaseAgent):
 
         if action_space[action] == _NO_OP:
             """Do nothing"""
-            # print('Do Nothing')
             func = actions.FunctionCall(_NO_OP, [])
+
+        elif state[0] and action_space[action] == _MOVE_SCREEN:
+            """Attack Move Soldier"""
+            beacon_x, beacon_y = beacon_pos[0].mean(), beacon_pos[1].mean()
+            func = actions.FunctionCall(_MOVE_SCREEN, [_NOT_QUEUED, [beacon_y, beacon_x]])
 
         elif action_space[action] == _SELECT_ARMY:
             """Select the Marine"""
-            # print('Select Marine')
             func = actions.FunctionCall(_SELECT_ARMY, [_SELECT_ALL])
 
         elif state[0] and action_space[action] == _SELECT_POINT:
@@ -64,13 +66,13 @@ class MoveToBeacon(base_agent.BaseAgent):
             point = np.random.randint(0, len(backgroundxs))
             backgroundx, backgroundy = backgroundxs[point], backgroundys[point]
             # print('Move Choice {0},{1}'.format(backgroundy, backgroundx))
-            func = actions.FunctionCall(_SELECT_POINT, [_QUEUED, [backgroundy, backgroundx]])
+            func = actions.FunctionCall(_SELECT_POINT, [_NOT_QUEUED, [backgroundy, backgroundx]])
 
         elif state[0] and action_space[action] == _MOVE_RAND:
             "Move somewhere random"
             movex, movey = np.random.randint(0, 32), np.random.randint(0, 32)
             # print('Move Random {0},{1}'.format(movex, movey))
-            func = actions.FunctionCall(_MOVE_SCREEN, [_QUEUED, [movey, movex]])
+            func = actions.FunctionCall(_MOVE_SCREEN, [_NOT_QUEUED, [movey, movex]])
 
         return state, action, func
 
@@ -93,3 +95,6 @@ class MoveToBeacon(base_agent.BaseAgent):
         # print('State {0}, {1}'.format((marine_selected, int(marine_on_beacon)), [beaconxs, beaconys]))
 
         return (marine_selected, int(marine_on_beacon)), [beaconxs, beaconys]
+
+    def get_steps(self):
+        return self.steps

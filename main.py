@@ -9,6 +9,7 @@ import statistics
 
 import Agents
 from Utils import Stack
+from Utils import Helper
 
 from pysc2 import maps
 from pysc2.env import sc2_env
@@ -28,7 +29,7 @@ if __name__ == '__main__':
     parser.add_argument("--map", help="Map (without .SC2Map)", type=str, default='MoveToBeacon')
     parser.add_argument("--load_qtable", help="Load Qtable", action='store_true')
     parser.add_argument("--folder", help="Folder Path to save/load the models (relative to Agents Folder)", type=str,
-                        default='../models')
+                        default='models')
 
     args = parser.parse_args()
 
@@ -114,9 +115,9 @@ if __name__ == '__main__':
             }
             stats_list.append(stats)
 
-            print('Ep.[{0}] Reward: {1} (Mean: {2}) in {3} seconds, {4} episodes left ({5})'
+            print('Ep.[{0}] Reward: {1} (Mean: {2}) in {3} seconds, {4} episodes left ({5}), Steps {6}, Threshold: {7}, Loss {8}'
                   .format(i, ep_reward, round(mean_score, 2), round(elapsed, 2), episodes_left,
-                          str(datetime.timedelta(seconds=round(seconds_left)))))
+                          str(datetime.timedelta(seconds=round(seconds_left))),agent.get_steps(), Helper.get_eps_threshold(0.9,0.025,2500,steps), loss))
             if args.replay and mean_score >= 20:
                 env.save_replay(agent_name, '{0}_{1}'.format(agent_name, str(ep_reward)))
 
