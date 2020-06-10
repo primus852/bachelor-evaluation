@@ -9,7 +9,6 @@ import statistics
 
 import Agents
 from Utils import Stack
-from Utils import Helper
 
 from pysc2 import maps
 from pysc2.env import sc2_env
@@ -28,8 +27,9 @@ if __name__ == '__main__':
     parser.add_argument("--max_episodes", help="Max Episodes per Run", type=int, default=5000)
     parser.add_argument("--max_steps", help="Max Steps per Episode", type=int, default=400)
     parser.add_argument("--infinite", help="Do not exit on mean", action="store_true")
-    parser.add_argument("--mean_exit", help="Exit on Mean Value", type=int, default=15)
+    parser.add_argument("--mean_exit", help="Exit on Mean Value (if no --infinite flag present)", type=int, default=15)
     parser.add_argument("--map", help="Map (without .SC2Map)", type=str, default='MoveToBeacon')
+    parser.add_argument("--agent", help="Map (without .SC2Map)", type=str, default='QTableAgent')
     parser.add_argument("--load_qtable", help="Load Qtable", action='store_true')
     parser.add_argument("--folder", help="Folder Path to save/load the models (relative to Agents Folder)", type=str,
                         default='models')
@@ -47,6 +47,7 @@ if __name__ == '__main__':
 
     i = 1
     while i < args.max_runs:
+        print('RUN {}'.format(1))
         i += 1
         steps = 0
         x = 0
@@ -76,9 +77,12 @@ if __name__ == '__main__':
             else:
                 print('Started with fresh QTable')
 
-            # Todo: Make Switch depending on Map
-            agent = Agents.MoveToBeacon(qt, states)
-            agent_name = Agents.MoveToBeacon.__name__
+            if args.agent == 'QTableAgent':
+                agent = Agents.QTableAgent(qt, states)
+                agent_name = '{}_{}'.format(Agents.QTableAgent.__name__, args.map)
+            else:
+                print('Unkown Agent, exiting...')
+                exit()
 
             stats_list = []
             for i in range(args.max_episodes):
@@ -89,7 +93,7 @@ if __name__ == '__main__':
                     steps += 1
                     state, action, func = agent.step(obs[0])
                     obs = env.step(actions=[func])
-                    next_state, _ = agent.get_state(obs[0])
+                    next_state = agent.get_state(obs[0])
                     reward = obs[0].reward
                     ep_reward += reward
                     loss = agent.qtable.update_qtable(state, next_state, action, reward)
